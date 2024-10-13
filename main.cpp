@@ -3,13 +3,18 @@
 #include <string>
 using namespace std;
 
-// Forward declarations
+// Function Declarations
 void login();
 void registration();
 void forgotPassword();
-void showPassword();
 void recoverByEmail();
 void recoverBySecurityQuestion();
+void manageStudents();
+void addStudent();
+void displayStudents();
+void modifyStudent();
+void deleteStudent();
+void calculateCGPA();
 
 int main()
 {
@@ -56,7 +61,6 @@ int main()
             break;
         case 4:
             system("cls");
-
             cout << "|******************************************************************|\n";
             cout << "|          Thank you for using the system. Exiting...              |\n";
             cout << "|******************************************************************|\n\n\n";
@@ -74,7 +78,7 @@ int main()
 
 void login()
 {
-    int count;
+    int count = 0;
     string userId, userPassword, id, pass;
     cout << "__________________________________________________________________\n";
     cout << "|                           Login Page                            |\n";
@@ -105,6 +109,8 @@ void login()
         cout << "|******************************************************************|\n";
         cout << "|               Login successful! Welcome " << userId << "!        \n";
         cout << "|******************************************************************|\n\n";
+        // Call manageStudents function after successful login
+        manageStudents();
     }
     else
     {
@@ -129,7 +135,6 @@ void registration()
     cin >> userEmail;
 
     cout << "\t\t Enter a security question (e.g., Your pet's name?): ";
-    // cin >> securityQuestion;
     cin.ignore();                   // Clear the input buffer
     getline(cin, securityQuestion); // Use getline to take the full input, including spaces
 
@@ -145,67 +150,6 @@ void registration()
     cout << "|                  Registration is successful!                     |\n";
     cout << "|******************************************************************|\n\n\n";
 }
-
-/* Forgotton password previous
-void forgotPassword()
-{
-    int option;
-    cout << "__________________________________________________________________\n";
-    cout << "|             You forgot the password? No worries..               |\n";
-    cout << "|_________________________________________________________________|\n\n";
-
-    cout << "\t 1. Search your ID by username. " << endl;
-    cout << "\t 2. Go back to the main menu. \n\n";
-    cout << "\t Please enter your choice: ";
-    cin >> option;
-
-    switch (option)
-    {
-    case 1:
-    {
-        int count;
-        string userId, id, pass;
-        cout << "\t Enter the username you remembered:";
-        cin >> userId;
-        cout << "\n";
-
-        ifstream search("credentials.txt");
-        while (search >> id >> pass)
-        {
-            if (id == userId)
-            {
-                count = 1; // User ID found
-                break;
-            }
-        }
-        search.close();
-
-        if (count == 1)
-        {
-            cout << "|*****************************************************************|\n";
-            cout << "|                   Your account is found!                        |\n";
-            cout << "|                  Your password is: " << pass << "               \n";
-            cout << "|*****************************************************************|\n\n\n";
-            main();
-        }
-        else
-        {
-            cout << "\n\t Sorry! Your account is not found! \n";
-            main();
-        }
-        break;
-    }
-    case 2:
-        main();
-        break;
-    default:
-        cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-        cout << "!          Invalid option. Please try again.                       !\n";
-        cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n";
-        forgotPassword();
-    }
-}
-*/
 
 void forgotPassword()
 {
@@ -233,10 +177,6 @@ void forgotPassword()
         cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n";
         forgotPassword();
     }
-}
-
-void showPassword()
-{
 }
 
 void recoverByEmail()
@@ -273,7 +213,7 @@ void recoverByEmail()
                 cin >> newPassword;
 
                 // Write the new password to a temporary file
-                ofstream tempFile("temp.txt");  
+                ofstream tempFile("temp.txt");
                 ifstream inFile("credentials.txt");
                 string tempId, tempPass, tempEmail, tempSecQ, tempSecA;
                 while (inFile >> tempId >> tempPass >> tempEmail >> tempSecQ >> tempSecA)
@@ -325,94 +265,265 @@ void recoverByEmail()
 
 void recoverBySecurityQuestion()
 {
-    string userId, secAnswer, storedSecAnswer, id, pass, secQuestion, email;
-    cout << "\t\t Enter your username: ";
+    string userId, securityQuestion, userAnswer, id, pass, storedQuestion, storedAnswer;
+    cout << "\n\t\t Enter your username: ";
     cin >> userId;
 
     ifstream read("credentials.txt");
-    bool userFound = false;
+    int count = 0;
 
-    while (read >> id >> pass >> email >> secQuestion >> storedSecAnswer)
+    while (read >> id >> pass >> storedQuestion >> storedAnswer)
     {
         if (id == userId)
         {
-            userFound = true;
-            cout << "\t\t Security Question: " << secQuestion << endl;
-            cout << "\t\t Enter the answer: ";
-            cin >> secAnswer;
+            count = 1;
+            cout << "|*****************************************************************|\n";
+            cout << "|               Security Question: " << storedQuestion << "         \n";
+            cout << "|*****************************************************************|\n\n";
 
-            if (secAnswer == storedSecAnswer)
+            cout << "\t\t Enter your answer: ";
+            cin >> userAnswer;
+
+            if (userAnswer == storedAnswer)
             {
                 cout << "|*****************************************************************|\n";
-                cout << "|               Your account is found!                            |\n";
-                cout << "|               Your password is: " << pass << "                  \n";
-                cout << "|               Would you like to change your password? (Y/N)     |\n";
+                cout << "|               Your password is: " << pass << "                   |\n";
                 cout << "|*****************************************************************|\n\n";
-
-                char choice;
-                cout << "\t\t Enter 'Y' for Yes or 'N' for No: ";
-                cin >> choice;
-
-                if (choice == 'Y' || choice == 'y')
-                {
-                    cout << "\t\t Enter your new password: ";
-                    string newPassword;
-                    cin >> newPassword;
-
-                    // Write the new password to a temporary file
-                    ofstream tempFile("temp.txt");
-                    ifstream inFile("credentials.txt");
-                    string tempId, tempPass, tempEmail, tempSecQ, tempSecA;
-                    while (inFile >> tempId >> tempPass >> tempEmail >> tempSecQ >> tempSecA)
-                    {
-                        if (tempId == userId)
-                        {
-                            tempFile << tempId << ' ' << newPassword << ' ' << tempEmail << ' ' << tempSecQ << ' ' << tempSecA << endl;
-                        }
-                        else
-                        {
-                            tempFile << tempId << ' ' << tempPass << ' ' << tempEmail << ' ' << tempSecQ << ' ' << tempSecA << endl;
-                        }
-                    }
-                    inFile.close();
-                    tempFile.close();
-
-                    // Rename temp file to replace the original file
-                    remove("credentials.txt");
-                    rename("temp.txt", "credentials.txt");
-
-                    cout << "|******************************************************************|\n";
-                    cout << "|               Password reset successfully!                       |\n";
-                    cout << "|******************************************************************|\n\n";
-                }
-                else if (choice == 'N' || choice == 'n')
-                {
-                    cout << "|******************************************************************|\n";
-                    cout << "|               No changes made.                                   |\n";
-                    cout << "|******************************************************************|\n\n";
-                }
-                else
-                {
-                    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-                    cout << "!          Invalid option. Please select either Y or N.            !\n";
-                    cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n";
-                }
-                break; // Exit the while loop after processing the answer
             }
             else
             {
                 cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-                cout << "!          Error! Incorrect answer to the security question.       !\n";
+                cout << "!          Error! Incorrect answer.                               !\n";
                 cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n";
             }
+            break;
         }
     }
     read.close();
 
-    if (!userFound)
+    if (count != 1)
     {
         cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-        cout << "!          Error! Username not found.                              !\n";
+        cout << "!          Error! Username not found.                             !\n";
         cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n";
     }
+}
+
+void manageStudents()
+{
+    int choice;
+    while (true)
+    {
+        cout << "__________________________________________________________________\n";
+        cout << "|                     Student Management System                   |\n";
+        cout << "|_________________________________________________________________|\n\n";
+
+        cout << "\t|--------------------------------------------------|\n";
+        cout << "\t|  1. Add Student                                 |\n";
+        cout << "\t|--------------------------------------------------|\n";
+        cout << "\t|  2. Display Students                            |\n";
+        cout << "\t|--------------------------------------------------|\n";
+        cout << "\t|  3. Modify Student                              |\n";
+        cout << "\t|--------------------------------------------------|\n";
+        cout << "\t|  4. Delete Student                              |\n";
+        cout << "\t|--------------------------------------------------|\n";
+        cout << "\t|  5. Calculate CGPA                              |\n";
+        cout << "\t|--------------------------------------------------|\n";
+        cout << "\t|  6. Logout                                       |\n";
+        cout << "\t|--------------------------------------------------|\n";
+
+        cout << "\nPlease enter your choice: ";
+        cin >> choice;
+
+        switch (choice)
+        {
+        case 1:
+            system("cls");
+            addStudent();
+            break;
+        case 2:
+            system("cls");
+            displayStudents();
+            break;
+        case 3:
+            system("cls");
+            modifyStudent();
+            break;
+        case 4:
+            system("cls");
+            deleteStudent();
+            break;
+        case 5:
+            system("cls");
+            calculateCGPA();
+            break;
+        case 6:
+            system("cls");
+            cout << "|******************************************************************|\n";
+            cout << "|                     Logging out...                               |\n";
+            cout << "|******************************************************************|\n\n";
+            return; // Return to the main menu
+        default:
+            cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+            cout << "!          Invalid choice. Please try again.                       !\n";
+            cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n";
+        }
+    }
+}
+
+void addStudent()
+{
+    // Function to add student data
+    string name, rollNumber;
+    int semester;
+    cout << "__________________________________________________________________\n";
+    cout << "|                     Add Student Record                          |\n";
+    cout << "|_________________________________________________________________|\n\n";
+
+    cout << "\t\t Enter student name: ";
+    cin.ignore(); // Clear the input buffer
+    getline(cin, name); // Get the full name
+    cout << "\t\t Enter roll number: ";
+    cin >> rollNumber;
+    cout << "\t\t Enter semester: ";
+    cin >> semester;
+
+    // Write student data to a file
+    ofstream write("students.txt", ios::app);
+    write << name << ' ' << rollNumber << ' ' << semester << endl;
+    write.close();
+
+    cout << "|******************************************************************|\n";
+    cout << "|                   Student record added!                          |\n";
+    cout << "|******************************************************************|\n\n";
+}
+
+void displayStudents()
+{
+    // Function to display all student records
+    cout << "__________________________________________________________________\n";
+    cout << "|                      Student Records                             |\n";
+    cout << "|_________________________________________________________________|\n\n";
+
+    ifstream read("students.txt");
+    string name, rollNumber;
+    int semester;
+
+    // Check if the file is empty
+    if (read.peek() == ifstream::traits_type::eof())
+    {
+        cout << "|            No records found!                                    |\n";
+    }
+    else
+    {
+        while (read >> name >> rollNumber >> semester)
+        {
+            cout << "|  Name: " << name << ", Roll Number: " << rollNumber << ", Semester: " << semester << " |\n";
+        }
+    }
+    read.close();
+    cout << "|_________________________________________________________________|\n\n";
+}
+
+void modifyStudent()
+{
+    // Function to modify existing student record
+    string rollNumber, name;
+    cout << "__________________________________________________________________\n";
+    cout << "|                     Modify Student Record                       |\n";
+    cout << "|_________________________________________________________________|\n\n";
+
+    cout << "\t\t Enter roll number of the student to modify: ";
+    cin >> rollNumber;
+
+    ifstream read("students.txt");
+    ofstream tempFile("temp.txt");
+    bool found = false;
+
+    while (read >> name >> rollNumber)
+    {
+        if (name == rollNumber) // Assuming name as unique identifier
+        {
+            found = true;
+            cout << "\t\t Current details - Name: " << name << ", Roll Number: " << rollNumber << endl;
+            cout << "\t\t Enter new name: ";
+            cin >> name; // Get new name
+            cout << "\t\t Enter new roll number: ";
+            cin >> rollNumber; // Get new roll number
+        }
+        tempFile << name << ' ' << rollNumber << endl; // Write back to temp file
+    }
+    read.close();
+    tempFile.close();
+
+    if (found)
+    {
+        remove("students.txt");
+        rename("temp.txt", "students.txt");
+        cout << "|******************************************************************|\n";
+        cout << "|                  Student record modified!                       |\n";
+        cout << "|******************************************************************|\n\n";
+    }
+    else
+    {
+        cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+        cout << "!         Student not found. No changes made.                     !\n";
+        cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n";
+    }
+}
+
+void deleteStudent()
+{
+    // Function to delete a student record
+    string rollNumber;
+    cout << "__________________________________________________________________\n";
+    cout << "|                     Delete Student Record                       |\n";
+    cout << "|_________________________________________________________________|\n\n";
+
+    cout << "\t\t Enter roll number of the student to delete: ";
+    cin >> rollNumber;
+
+    ifstream read("students.txt");
+    ofstream tempFile("temp.txt");
+    bool found = false;
+
+    while (read >> rollNumber)
+    {
+        if (rollNumber != rollNumber) // Skip the student to delete
+        {
+            tempFile << rollNumber << endl;
+        }
+        else
+        {
+            found = true; // Student found
+        }
+    }
+    read.close();
+    tempFile.close();
+
+    if (found)
+    {
+        remove("students.txt");
+        rename("temp.txt", "students.txt");
+        cout << "|******************************************************************|\n";
+        cout << "|                  Student record deleted!                        |\n";
+        cout << "|******************************************************************|\n\n";
+    }
+    else
+    {
+        cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+        cout << "!         Student not found. No changes made.                     !\n";
+        cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n";
+    }
+}
+
+void calculateCGPA()
+{
+    // Function to calculate CGPA from student records
+    cout << "__________________________________________________________________\n";
+    cout << "|                     Calculate CGPA                              |\n";
+    cout << "|_________________________________________________________________|\n\n";
+
+    // Logic to calculate CGPA would go here
+    cout << "CGPA calculation is currently not implemented.\n";
 }
